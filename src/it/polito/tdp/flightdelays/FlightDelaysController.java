@@ -7,8 +7,10 @@
 package it.polito.tdp.flightdelays;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.extflightdelays.model.Airport;
 import it.polito.tdp.extflightdelays.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -41,21 +43,43 @@ public class FlightDelaysController {
     private Button btnAnalizza; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbBoxAeroportoPartenza"
-    private ComboBox<String> cmbBoxAeroportoPartenza; // Value injected by FXMLLoader
+    private ComboBox<Airport> cmbBoxAeroportoPartenza; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbBoxAeroportoArrivo"
-    private ComboBox<String> cmbBoxAeroportoArrivo; // Value injected by FXMLLoader
+    private ComboBox<Airport> cmbBoxAeroportoArrivo; // Value injected by FXMLLoader
 
     @FXML // fx:id="btnAeroportiConnessi"
     private Button btnAeroportiConnessi; // Value injected by FXMLLoader
 
     @FXML
     void doAnalizzaAeroporti(ActionEvent event) {
+    	txtResult.clear();
+    	Integer distanzaMinima;
+    	try {
+    		distanzaMinima = Integer.parseInt(this.distanzaMinima.getText());
+    	} catch (NumberFormatException e) {
+    		txtResult.setText("Inserire una distanza minima numerica");
+    		return;
+    	}
+    	this.model.creaGrafo(distanzaMinima);
+		txtResult.setText("Grafo creato!");
 
     }
 
     @FXML
     void doTestConnessione(ActionEvent event) {
+    	Airport a1 = cmbBoxAeroportoPartenza.getValue();
+    	Airport a2 = cmbBoxAeroportoArrivo.getValue();
+    	
+    	if(a1 == null || a2 == null) {
+    		txtResult.setText("Devi selezionare un aeroporto di partenza e uno di arrivo");
+    		return;
+    	}
+		List<Airport> percorso = model.trovaPercorso(a1.getId(), a2.getId());
+		if(percorso == null)
+			txtResult.setText("I due aeroporti non sono connessi");
+		else
+			txtResult.setText("I due aeroporti sono connessi dal seguente percorso: " + percorso);
 
     }
 
@@ -72,6 +96,9 @@ public class FlightDelaysController {
     
     public void setModel(Model model) {
 		this.model = model;
+		cmbBoxAeroportoPartenza.getItems().addAll(model.getAirports());
+		cmbBoxAeroportoArrivo.getItems().addAll(model.getAirports());
+
 	}
 }
 

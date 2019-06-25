@@ -5,7 +5,7 @@ public class TestModel {
 	public static void main(String[] args) {
 		
 		Model model = new Model();
-		model.creaGrafo(400);
+		model.creaGrafo(30);
 		
 		if(model.testConnessione(11, 297))
 			System.out.println("Connessi");
@@ -13,6 +13,7 @@ public class TestModel {
 			System.out.println("NON Connessi");
 		
 		System.out.println(model.trovaPercorso(11, 297));
+		
 		}
 	
 	}

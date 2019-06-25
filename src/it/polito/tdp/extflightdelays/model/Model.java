@@ -1,6 +1,7 @@
 package it.polito.tdp.extflightdelays.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -22,18 +23,24 @@ import it.polito.tdp.extflightdelays.db.ExtFlightDelaysDAO;
 public class Model {
 	
 	SimpleWeightedGraph<Airport, DefaultWeightedEdge> grafo;
-	Map<Integer,Airport> aIdMap;
+	Map<Integer,Airport> aIdMap; //mappa utilizzata nel dao perchè i vertici del grafo devono essere degli oggetti Airport
 	Map<Airport,Airport> visita;
+	ExtFlightDelaysDAO dao;
 	
 	public Model() {
 		grafo=new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
 		aIdMap= new HashMap<Integer, Airport>();
 		visita= new HashMap<Airport, Airport>();
+		dao= new ExtFlightDelaysDAO();
+		dao.loadAllAirports(aIdMap); //popolo la mappa
+		
+	}
+	
+	public Collection<Airport> getAirports(){
+		return this.aIdMap.values();
 	}
 	
 	public void creaGrafo(int distanzaMedia) {
-		ExtFlightDelaysDAO dao = new ExtFlightDelaysDAO();
-		dao.loadAllAirports(aIdMap); //popolo la mappa
 		
 		//Aggiungere i vertici
 		Graphs.addAllVertices(grafo, aIdMap.values());
@@ -43,10 +50,10 @@ public class Model {
 			//controllo se esiste già un arco
 			//se esiste aggiorno il peso
 			DefaultWeightedEdge edge = grafo.getEdge(rotta.getPartenza(), rotta.getDestinazione());
-			if(edge==null) {
+			if(edge==null) { //l'arco non c'è quindi lo creo
 				Graphs.addEdge(grafo, rotta.getPartenza(), rotta.getDestinazione(), rotta.getDistanzaMedia());
 				
-			}else {
+			}else { //l'arco c'è già quindi aggiorno solo il peso
 				System.out.println("Aggiornare peso!");
 				double peso = grafo.getEdgeWeight(edge);
 				double newPeso = (peso + rotta.getDistanzaMedia())/2;
